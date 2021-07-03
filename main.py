@@ -1,7 +1,7 @@
-import pathlib
+from pathlib import Path
 import requests
 
-BOOKS_DIR = pathlib.Path('./books')
+BOOKS_DIR = Path('./books')
 BOOKS_SITE_URL = "https://tululu.org/txt.php"
 BOOKS_QUANTITY = 10
 
@@ -15,9 +15,9 @@ def fetch_books(books_quantity):
 
 
 def main():
-    pathlib.Path.mkdir(BOOKS_DIR, exist_ok=True)
+    Path.mkdir(BOOKS_DIR, exist_ok=True)
     for book_id, book_text in fetch_books(BOOKS_QUANTITY):
-        with open(pathlib.Path(BOOKS_DIR / f"{book_id}.txt"), "w") as book_file_data:
+        with open(Path(BOOKS_DIR / f"{book_id}.txt"), "w") as book_file_data:
             book_file_data.write(book_text)
 
 
