@@ -10,7 +10,8 @@ def fetch_books(books_quantity):
     for book_id in range(1, books_quantity + 1):
         response = requests.get(BOOKS_SITE_URL, params={"id": book_id})
         response.raise_for_status()
-        yield book_id, response.text
+        if not response.history:
+            yield book_id, response.text
 
 
 def main():
