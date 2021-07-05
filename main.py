@@ -79,8 +79,14 @@ def download_comments(url):
         for comment in comments:
             print(comment.find("span", class_="black").text)
 
-        # import sys
-        # sys.exit()
+
+def parse_genres(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    if not response.history:
+        soup = BeautifulSoup(response.content, "lxml")
+        genres = [genre.text for genre in soup.find("span", class_="d_book").find_all("a")]
+        print(genres)
 
 
 def main():
@@ -90,7 +96,8 @@ def main():
         # download_txt(url=book_txt_url, filename=f"{book_id}. {book_title}")
         url = f"https://tululu.org/b{book_id}/"
         # download_image(url)
-        download_comments(url)
+        # download_comments(url)
+        parse_genres(url)
 
 
 if __name__ == '__main__':
