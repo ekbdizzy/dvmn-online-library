@@ -3,3 +3,4 @@ venv/
 .DS_Store
 books/
 images/
+**/__pycache__/
