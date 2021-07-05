@@ -1,8 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib import parse
-
-BOOKS_QUANTITY = 10
+import argparse
 
 
 def parse_book_page(html: bytes) -> dict:
@@ -19,16 +18,20 @@ def parse_book_page(html: bytes) -> dict:
     }
 
 
-def main():
-    for book_id in range(1, BOOKS_QUANTITY + 1):
+def parse_books(start_id: int, end_id: int):
+    for book_id in range(start_id, end_id + 1):
         url = f"https://tululu.org/b{book_id}/"
         response = requests.get(url)
         response.raise_for_status()
 
         if not response.history:
             book_info = parse_book_page(response.content)
-            print(book_info)
+            print(f'Название: {book_info.get("title")}\nАвтор: {book_info.get("author")}\n')
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser("Parse books_info from tululu.org.")
+    parser.add_argument("--start_id", metavar="start_id", type=int, default=0, help="first book_id of parse list.")
+    parser.add_argument("--end_id", metavar="--end_id", type=int, default=10, help="last book_id of parse list.")
+    args = parser.parse_args()
+    parse_books(args.start_id, args.end_id)
