@@ -21,8 +21,16 @@ def parse_book_page(html: bytes) -> dict:
 def parse_books(start_id: int, end_id: int):
     for book_id in range(start_id, end_id + 1):
         url = f"https://tululu.org/b{book_id}/"
-        response = requests.get(url)
-        response.raise_for_status()
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+        except requests.exceptions.ConnectionError:
+            print(f"Connection error: failed to establish connection to {url}")
+            continue
+
+        except requests.exceptions.HTTPError as e:
+            print(e)
+            continue
 
         if not response.history:
             book_info = parse_book_page(response.content)
