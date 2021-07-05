@@ -69,12 +69,28 @@ def download_image(url, folder='images/'):
     return file_path
 
 
+def download_comments(url):
+    response = requests.get(url)
+    response.raise_for_status()
+
+    if not response.history:
+        soup = BeautifulSoup(response.content, "lxml")
+        comments = soup.find_all("div", class_="texts")
+        for comment in comments:
+            print(comment.find("span", class_="black").text)
+
+        # import sys
+        # sys.exit()
+
+
 def main():
     for book_id in range(1, BOOKS_QUANTITY + 1):
-        book_title = fetch_book_title(book_id)
-        book_txt_url = f"https://tululu.org/txt.php?id={book_id}"
-        download_txt(url=book_txt_url, filename=f"{book_id}. {book_title}")
-        download_image(f"https://tululu.org/b{book_id}/")
+        # book_title = fetch_book_title(book_id)
+        # book_txt_url = f"https://tululu.org/txt.php?id={book_id}"
+        # download_txt(url=book_txt_url, filename=f"{book_id}. {book_title}")
+        url = f"https://tululu.org/b{book_id}/"
+        # download_image(url)
+        download_comments(url)
 
 
 if __name__ == '__main__':
