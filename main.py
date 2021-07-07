@@ -1,6 +1,7 @@
 import argparse
 import logging
-from tululu_services.parse_services import parse_books
+
+from download_services import download_books
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s [%(asctime)s] %(message)s', level=logging.INFO)
@@ -9,4 +10,4 @@ if __name__ == '__main__':
     parser.add_argument("--end_id", metavar="--end_id", type=int, default=10, help="last book_id of parse list.")
     args = parser.parse_args()
 
-    parse_books(args.start_id, args.end_id)
+    download_books(args.start_id, args.end_id)
