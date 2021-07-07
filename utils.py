@@ -6,11 +6,15 @@ from bs4 import BeautifulSoup
 from urllib import parse
 
 
+def is_redirect(response):
+    return response.history
+
+
 def fetch_book_title(url: str) -> Optional[str]:
     response = requests.get(url)
     response.raise_for_status()
 
-    if response.history:
+    if is_redirect(response):
         return
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -31,7 +35,7 @@ def download_txt(url, filename, folder='books/'):
     response = requests.get(url)
     response.raise_for_status()
 
-    if response.history:
+    if is_redirect(response):
         return
 
     file_path = Path(Path(folder) / f"{sanitize_filename(filename)}.txt")
@@ -55,7 +59,7 @@ def download_image(url, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
 
-    if response.history:
+    if is_redirect(response):
         return
 
     soup = BeautifulSoup(response.text, "lxml")
@@ -77,7 +81,7 @@ def download_comments(url):
     response = requests.get(url)
     response.raise_for_status()
 
-    if response.history:
+    if is_redirect(response):
         return
 
     soup = BeautifulSoup(response.content, "lxml")
@@ -90,7 +94,7 @@ def parse_genres(url):
     response = requests.get(url)
     response.raise_for_status()
 
-    if response.history:
+    if is_redirect(response):
         return
 
     soup = BeautifulSoup(response.content, "lxml")

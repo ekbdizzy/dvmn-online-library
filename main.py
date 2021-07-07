@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from urllib import parse
 import argparse
 import logging
+from utils import is_redirect
 
 
 def parse_book_page(html: bytes) -> dict:
@@ -33,7 +34,7 @@ def parse_books(start_id: int, end_id: int):
             logging.exception(e)
             continue
 
-        if not response.history:
+        if not is_redirect(response):
             book_info = parse_book_page(response.content)
             print(f'Название: {book_info.get("title")}\nАвтор: {book_info.get("author")}\n')
 
