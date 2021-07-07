@@ -1,25 +1,8 @@
-import requests
 from pathlib import Path
-from typing import Optional
-from pathvalidate import sanitize_filename
+import requests
 from bs4 import BeautifulSoup
-from urllib import parse
-
-
-def is_redirect(response):
-    return response.history
-
-
-def fetch_book_title(url: str) -> Optional[str]:
-    response = requests.get(url)
-    response.raise_for_status()
-
-    if is_redirect(response):
-        return
-
-    soup = BeautifulSoup(response.text, "lxml")
-    title, _ = soup.find('h1').text.split("::")
-    return title.strip()
+from pathvalidate import sanitize_filename
+from parse_services import parse_file_name_from_url, is_redirect, parse_cover_image_link
 
 
 def download_txt(url, filename, folder='books/'):
@@ -44,10 +27,6 @@ def download_txt(url, filename, folder='books/'):
     return str(file_path)
 
 
-def parse_file_name_from_url(url: str) -> str:
-    return parse.unquote(Path(parse.urlsplit(url).path).name)
-
-
 def download_image(url, folder='images/'):
     """Функция для скачивания картинок.
     Args:
@@ -63,12 +42,12 @@ def download_image(url, folder='images/'):
         return
 
     soup = BeautifulSoup(response.text, "lxml")
-    img_link = soup.find("div", class_="bookimage").find("img")['src']
-    abs_img_link = parse.urljoin("https://tululu.org", img_link)
-    image_data_response = requests.get(abs_img_link)
+
+    img_link = parse_cover_image_link(soup)
+    image_data_response = requests.get(img_link)
     image_data_response.raise_for_status()
 
-    file_name = parse_file_name_from_url(abs_img_link)
+    file_name = parse_file_name_from_url(img_link)
     file_path = Path(Path(folder) / file_name)
     Path.mkdir(Path(folder), exist_ok=True)
     if not Path(file_path).exists():
@@ -88,15 +67,3 @@ def download_comments(url):
     comments = soup.find_all("div", class_="texts")
     for comment in comments:
         print(comment.find("span", class_="black").text)
-
-
-def parse_genres(url):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    if is_redirect(response):
-        return
-
-    soup = BeautifulSoup(response.content, "lxml")
-    genres = [genre.text for genre in soup.find("span", class_="d_book").find_all("a")]
-    print(genres)
