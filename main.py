@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib import parse
 import argparse
+import logging
 
 
 def parse_book_page(html: bytes) -> dict:
@@ -22,14 +23,14 @@ def parse_books(start_id: int, end_id: int):
     for book_id in range(start_id, end_id + 1):
         url = f"https://tululu.org/b{book_id}/"
         try:
-            response = requests.get(url)
+            response = requests.get(f"{url}")
             response.raise_for_status()
         except requests.exceptions.ConnectionError:
-            print(f"Connection error: failed to establish connection to {url}")
+            logging.exception(f"Connection error: failed to establish connection to {url}")
             continue
 
         except requests.exceptions.HTTPError as e:
-            print(e)
+            logging.exception(e)
             continue
 
         if not response.history:
@@ -43,3 +44,5 @@ if __name__ == '__main__':
     parser.add_argument("--end_id", metavar="--end_id", type=int, default=10, help="last book_id of parse list.")
     args = parser.parse_args()
     parse_books(args.start_id, args.end_id)
+
+    logging.basicConfig(format='%(levelname)s [%(asctime)s] %(message)s', level=logging.INFO)
