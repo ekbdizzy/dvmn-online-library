@@ -56,14 +56,3 @@ def download_image(url, folder='images/'):
     return file_path
 
 
-def download_comments(url):
-    response = requests.get(url)
-    response.raise_for_status()
-
-    if is_redirect(response):
-        return
-
-    soup = BeautifulSoup(response.content, "lxml")
-    comments = soup.find_all("div", class_="texts")
-    for comment in comments:
-        print(comment.find("span", class_="black").text)

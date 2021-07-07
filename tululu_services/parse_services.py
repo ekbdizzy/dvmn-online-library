@@ -22,7 +22,7 @@ def parse_book_title(url: str) -> Optional[str]:
     return title.strip()
 
 
-def parse_genres(url):
+def parse_genres(url) -> Optional[list]:
     response = requests.get(url)
     response.raise_for_status()
 
@@ -31,16 +31,28 @@ def parse_genres(url):
 
     soup = BeautifulSoup(response.content, "lxml")
     genres = [genre.text for genre in soup.find("span", class_="d_book").find_all("a")]
-    print(genres)
+    return genres
 
 
 def parse_file_name_from_url(url: str) -> str:
     return parse.unquote(Path(parse.urlsplit(url).path).name)
 
 
-def parse_cover_image_link(soup: BeautifulSoup):
+def parse_cover_image_link(soup: BeautifulSoup) -> str:
     image_link = soup.find("div", class_="bookimage").find("img")['src']
     return parse.urljoin("https://tululu.org", image_link)
+
+
+def parse_comments(url: str) -> Optional[list]:
+    response = requests.get(url)
+    response.raise_for_status()
+
+    if is_redirect(response):
+        return
+
+    soup = BeautifulSoup(response.content, "lxml")
+    comments = soup.find_all("div", class_="texts")
+    return [comment.find("span", class_="black").text for comment in comments]
 
 
 def parse_book_page(html: bytes) -> dict:
