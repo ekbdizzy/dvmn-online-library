@@ -1,11 +1,8 @@
 import json
-from pathlib import Path
-
 import requests
 from bs4 import BeautifulSoup
 from urllib import parse
-from download_services import download_txt, download_image, download_book
-from parse_services import parse_book_page
+from download_services import download_book
 
 PAGES = 2
 all_books_info = []
