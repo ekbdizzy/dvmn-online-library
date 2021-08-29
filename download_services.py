@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Optional
+
 import requests
 from pathvalidate import sanitize_filename
 import logging
@@ -7,17 +9,28 @@ from parse_services import (parse_file_name_from_url,
                             parse_book_page)
 
 
-def download_txt(url, filename, folder='books/'):
+def update_book_info(book_info: dict, filepath: str,
+                     txt_folder: str = 'books',
+                     images_folder: str = 'images') -> dict:
+    """Заменяет в book_data пути к файлам книги и обложки."""
+    book_info['img_src'] = str(Path(Path(images_folder) / book_info.get('image_link').split('/')[-1]))
+    del book_info['image_link']
+    book_info['book_path'] = filepath
+    return book_info
+
+
+def download_txt(book_id, filename, folder='books', url="https://tululu.org/txt.php"):
     """Функция для скачивания текстовых файлов.
     Args:
-        url (str): Cсылка на текст, который хочется скачать.
+        url (str): Cсылка на страницу, с которой нужно скачать книгу.
+        book_id (int): ID книги, которую нужно скачать
         filename (str): Имя файла, с которым сохранять.
         folder (str): Папка, куда сохранять.
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
     Path.mkdir(Path(folder), exist_ok=True)
-    response = requests.get(url)
+    response = requests.get(url, params={"id": book_id})
     response.raise_for_status()
 
     if is_redirect(response):
@@ -29,7 +42,7 @@ def download_txt(url, filename, folder='books/'):
     return str(file_path)
 
 
-def download_image(url, folder='images/'):
+def download_image(url, folder='images'):
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на страницу книги.
@@ -49,28 +62,44 @@ def download_image(url, folder='images/'):
     return file_path
 
 
+def fetch_book_data(book_id: int) -> Optional[dict]:
+    """Функция для получения HTML-страницы книги.
+    Args:
+        book_id: ID книги.
+    Returns:
+        str: HTML-страница книги, если книга существует. Иначе вернет None.
+    """
+    try:
+        url = f"https://tululu.org/b{book_id}/"
+        response = requests.get(f"{url}")
+        response.raise_for_status()
+        if is_redirect(response):
+            return
+        return parse_book_page(response.content)
+    except requests.exceptions.ConnectionError:
+        logging.exception(f"Connection error: failed to establish connection to {url}")
+        return
+    except requests.exceptions.HTTPError as e:
+        logging.exception(e)
+        return
+
+
+def download_book(book_id: int, txt_folder: str = 'books', images_folder: str = "images") -> Optional[dict]:
+    book_info = fetch_book_data(book_id)
+    if not book_info:
+        return
+    download_image(book_info.get('image_link'), images_folder)
+    download_txt_url = f"https://tululu.org/txt.php"
+    filename = f'{book_id}. {book_info.get("title")}'
+    file_path = download_txt(url=download_txt_url, book_id=book_id, folder=txt_folder, filename=filename)
+    print(f'\n\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
+    comments = book_info.get("comments")
+    # if comments:
+    #     print("Комментарии:")
+    #     print(*comments, sep="\n")
+    return update_book_info(book_info, file_path, txt_folder=txt_folder, images_folder=images_folder)
+
+
 def download_books(start_id: int, end_id: int):
     for book_id in range(start_id, end_id + 1):
-
-        url = f"https://tululu.org/b{book_id}/"
-        try:
-            response = requests.get(f"{url}")
-            response.raise_for_status()
-        except requests.exceptions.ConnectionError:
-            logging.exception(f"Connection error: failed to establish connection to {url}")
-            continue
-
-        except requests.exceptions.HTTPError as e:
-            logging.exception(e)
-            continue
-
-        if not is_redirect(response):
-            book_info = parse_book_page(response.content)
-            download_image(book_info.get('image_link'))
-            download_txt_url = f"https://tululu.org/text.php?id={book_id}"
-            download_txt(url=download_txt_url, filename=f'{book_id}. {book_info.get("title")}')
-            print(f'\n\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
-            comments = book_info.get("comments")
-            if comments:
-                print("Комментарии:")
-                print(*comments, sep="\n")
+        download_book(book_id)

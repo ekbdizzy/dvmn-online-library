@@ -4,3 +4,4 @@ venv/
 books/
 images/
 **/__pycache__/
+books_info.json
