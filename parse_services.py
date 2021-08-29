@@ -32,3 +32,11 @@ def parse_book_page(html: bytes) -> dict:
         "genres": genres,
         "comments": comments
     }
+
+
+def update_book_info(book_info: dict, filepath: str, images_folder='images') -> dict:
+    """Заменяет в book_data пути к файлам книги и обложки и убирает ссылку на обложку."""
+    book_info['img_src'] = str(Path(Path(images_folder) / book_info.get('image_link').split('/')[-1]))
+    del book_info['image_link']
+    book_info['book_path'] = filepath
+    return book_info

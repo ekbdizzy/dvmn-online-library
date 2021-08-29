@@ -6,17 +6,8 @@ from pathvalidate import sanitize_filename
 import logging
 from parse_services import (parse_file_name_from_url,
                             is_redirect,
-                            parse_book_page)
-
-
-def update_book_info(book_info: dict, filepath: str,
-                     txt_folder: str = 'books',
-                     images_folder: str = 'images') -> dict:
-    """Заменяет в book_data пути к файлам книги и обложки."""
-    book_info['img_src'] = str(Path(Path(images_folder) / book_info.get('image_link').split('/')[-1]))
-    del book_info['image_link']
-    book_info['book_path'] = filepath
-    return book_info
+                            parse_book_page,
+                            update_book_info)
 
 
 def download_txt(book_id, filename, folder='books', url="https://tululu.org/txt.php"):
@@ -97,7 +88,7 @@ def download_book(book_id: int, txt_folder: str = 'books', images_folder: str = 
     # if comments:
     #     print("Комментарии:")
     #     print(*comments, sep="\n")
-    return update_book_info(book_info, file_path, txt_folder=txt_folder, images_folder=images_folder)
+    return update_book_info(book_info, file_path, images_folder=images_folder)
 
 
 def download_books(start_id: int, end_id: int):
