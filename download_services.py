@@ -9,7 +9,17 @@ from parse_services import (parse_file_name_from_url,
                             update_book_info)
 
 
-def download_txt(book_id, filename, folder='books', url="https://tululu.org/txt.php"):
+def make_folder(folder: [Path or str], dest_folder: Optional[str] = None) -> Path:
+    """Создает директории dest_folder/folder или folder."""
+    if dest_folder:
+        Path.mkdir(Path(dest_folder), exist_ok=True)
+        Path.mkdir(Path(dest_folder) / folder, exist_ok=True)
+        return Path(Path(dest_folder) / folder)
+    Path.mkdir(Path(folder), exist_ok=True)
+    return Path(folder)
+
+
+def download_txt(book_id, filename, folder: Path = Path('books'), url="https://tululu.org/txt.php"):
     """Функция для скачивания текстовых файлов.
     Args:
         url (str): Cсылка на страницу, с которой нужно скачать книгу.
@@ -29,10 +39,10 @@ def download_txt(book_id, filename, folder='books', url="https://tululu.org/txt.
     file_path = Path(Path(folder) / f"{sanitize_filename(filename)}.txt")
     with open(file_path, "w") as file_obj:
         file_obj.write(response.text)
-    return str(file_path)
+    return file_path
 
 
-def download_image(url, folder='images'):
+def download_image(url, folder: Path = Path('images')) -> Path:
     """Функция для скачивания картинок.
     Args:
         url (str): Cсылка на страницу книги.
@@ -58,8 +68,8 @@ def fetch_book_data(book_id: int) -> Optional[dict]:
     Returns:
         str: HTML-страница книги, если книга существует. Иначе вернет None.
     """
+    url = f"https://tululu.org/b{book_id}/"
     try:
-        url = f"https://tululu.org/b{book_id}/"
         response = requests.get(f"{url}")
         response.raise_for_status()
         if is_redirect(response):
@@ -98,17 +108,8 @@ def download_book(
 
     file_path = ''
 
-    if dest_folder:
-        Path.mkdir(Path(dest_folder), exist_ok=True)
-        Path.mkdir(Path(dest_folder) / txt_folder, exist_ok=True)
-        Path.mkdir(Path(dest_folder) / images_folder, exist_ok=True)
-        txt_folder = Path(Path(dest_folder) / txt_folder)
-        images_folder = Path(Path(dest_folder) / images_folder)
-    else:
-        Path.mkdir(Path(txt_folder), exist_ok=True)
-        Path.mkdir(Path(images_folder), exist_ok=True)
-
     if not skip_txt:
+        txt_folder = make_folder(txt_folder, dest_folder)
         download_txt_url = f"https://tululu.org/txt.php"
         filename = f'{book_id}. {book_info.get("title")}'
         file_path = download_txt(url=download_txt_url, book_id=book_id, folder=txt_folder, filename=filename)
@@ -116,10 +117,11 @@ def download_book(
             return
 
     if not skip_images:
+        images_folder = make_folder(images_folder, dest_folder)
         download_image(book_info.get('image_link'), images_folder)
 
     print(f'\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
-    return update_book_info(book_info, file_path, images_folder=images_folder)
+    return update_book_info(book_info, file_path, images_folder=images_folder, skip_images=skip_images)
 
 
 def download_books(start_id: int, end_id: int):
