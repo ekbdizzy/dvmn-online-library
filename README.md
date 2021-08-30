@@ -1,12 +1,8 @@
 ## Books parser from tululu.org
 
-This scripts helps to parse books credentials (title, author, comments) and download it in *.txt format and cover image.
-
-![Screenshot!](./dvmn_parser_screenshot.png)
-
 Books are parsing from free online library [tululu.org](https://tululu.org).
 
-## Before start install requirements
+## Before start install requirements§
 
 ~~~
 pip install -r requirements.txt
@@ -14,25 +10,29 @@ pip install -r requirements.txt
 
 ## Working with project
 
-Script `main.py` has cli args:
+Script `parse_tululu_category.py` has cli args:
 
-1. `--start_id` - first book_id of parse list, integer, default = 0.
-2. `--end_id` - last book_id of parse list, integer, default = 10.
+1. `--dest_folder`: destination folder of all downloads. Default: current directory.
+2. `--json_path`: destination folder of json_file with books info. Default: `./books_info.json`
+3. `--skip_imgs`: skip downloading images.
+4. `--skip_txt`: skip downloading txt.
+5. `--start_page`: - first page number to parse.
+6. `--end_page`: last page number to parse.
 
 Usage:
 
 ~~~
-python main.py --start_id 20 --end_id 30
+python parse_tululu_category.py --dest_folder books --start_page 10 --end_page 15 --skip_imgs 
 ~~~
 
 More info:
 
 ~~~
-python main.py -h
+python parse_tululu_category.py -h
 ~~~
 
 ## Credential
 
-Project created as a lesson in [Devman](https://dvmn.org/modules/website-layout-for-pydev/). 
+Project is created as a lesson in [Devman](https://dvmn.org/modules/website-layout-for-pydev/). 
 
 

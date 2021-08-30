@@ -6,6 +6,8 @@ from download_services import download_book
 from arguments_parser import get_args
 from parse_services import parse_books_ids
 
+CATEGORY = "l55"  # Раздел "Фантастика"
+
 if __name__ == '__main__':
 
     args = get_args()
@@ -17,7 +19,7 @@ if __name__ == '__main__':
     for page in range(start_page, end_page + 1):
         print(f"\n{'* ' * 10}\nPage {page}\n{'* ' * 10}")
 
-        url = f"https://tululu.org/l55/{page}/"
+        url = f"https://tululu.org/{CATEGORY}/{page}/"
         response = requests.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, "lxml")
