@@ -19,7 +19,7 @@ def download_txt(book_id, filename, folder='books', url="https://tululu.org/txt.
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
-    Path.mkdir(Path(folder), exist_ok=True)
+
     response = requests.get(url, params={"id": book_id})
     response.raise_for_status()
 
@@ -45,7 +45,6 @@ def download_image(url, folder='images'):
     image_data_response.raise_for_status()
     file_name = parse_file_name_from_url(url)
     file_path = Path(Path(folder) / file_name)
-    Path.mkdir(Path(folder), exist_ok=True)
     if not Path(file_path).exists():
         with open(file_path, "wb") as file:
             file.write(image_data_response.content)
@@ -74,19 +73,52 @@ def fetch_book_data(book_id: int) -> Optional[dict]:
         return
 
 
-def download_book(book_id: int, txt_folder: str = 'books', images_folder: str = "images") -> Optional[dict]:
+def download_book(
+        book_id: int,
+        txt_folder: str = 'books',
+        images_folder: str = "images",
+        dest_folder: Optional[str] = None,
+        skip_images: bool = False,
+        skip_txt: bool = False) -> Optional[dict]:
+    """Функция для скачивания книги и обложки.
+    Args:
+        book_id: ID книги
+        txt_folder: название папки для сохранения txt-файлов
+        images_folder: название папки для сохранения обложек
+        dest_folder: папка для сохранения всех материалов
+        skip_txt: если значение True, txt-файл книги не будет загружаться
+        skip_images: если значение True, обложка книги не будет загружаться
+    Returns:
+        dict: Информация о скачанной книге
+"""
     book_info = fetch_book_data(book_id)
+
     if not book_info:
         return
-    download_image(book_info.get('image_link'), images_folder)
-    download_txt_url = f"https://tululu.org/txt.php"
-    filename = f'{book_id}. {book_info.get("title")}'
-    file_path = download_txt(url=download_txt_url, book_id=book_id, folder=txt_folder, filename=filename)
-    print(f'\n\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
-    comments = book_info.get("comments")
-    # if comments:
-    #     print("Комментарии:")
-    #     print(*comments, sep="\n")
+
+    file_path = ''
+
+    if dest_folder:
+        Path.mkdir(Path(dest_folder), exist_ok=True)
+        Path.mkdir(Path(dest_folder) / txt_folder, exist_ok=True)
+        Path.mkdir(Path(dest_folder) / images_folder, exist_ok=True)
+        txt_folder = Path(Path(dest_folder) / txt_folder)
+        images_folder = Path(Path(dest_folder) / images_folder)
+    else:
+        Path.mkdir(Path(txt_folder), exist_ok=True)
+        Path.mkdir(Path(images_folder), exist_ok=True)
+
+    if not skip_txt:
+        download_txt_url = f"https://tululu.org/txt.php"
+        filename = f'{book_id}. {book_info.get("title")}'
+        file_path = download_txt(url=download_txt_url, book_id=book_id, folder=txt_folder, filename=filename)
+        if not file_path:
+            return
+
+    if not skip_images:
+        download_image(book_info.get('image_link'), images_folder)
+
+    print(f'\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
     return update_book_info(book_info, file_path, images_folder=images_folder)
 
 
