@@ -2,7 +2,7 @@
 
 Books are parsing from free online library [tululu.org](https://tululu.org).
 
-## Before start install requirements§
+## Before start install requirements
 
 ~~~
 pip install -r requirements.txt
