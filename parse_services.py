@@ -1,8 +1,28 @@
+import sys
 from typing import Optional, List
 from urllib import parse
 from pathlib import Path
 
+import requests
 from bs4 import BeautifulSoup
+
+
+def get_pages_to_parse(url: str, start_page: int, end_page: int) -> (int, int):
+    """Получает первую и последнюю страницу книги из cli. Если последняя страница не указана,
+     парсит ее номер со страницы категории.
+     Если последняя страница меньше первой, завершает программу."""
+    if not end_page:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'lxml')
+        try:
+            end_page = soup.select("a.npage")[-1]
+            end_page = int(end_page.text)
+        except IndexError:
+            end_page = 1
+    if start_page > end_page:
+        sys.exit(f"First page value must be less end page value. End page = {end_page}")
+    return start_page, end_page
 
 
 def has_link_to_download_txt(soup, book_id) -> bool:

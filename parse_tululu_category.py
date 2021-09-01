@@ -1,10 +1,9 @@
 import json
-import sys
 import requests
 from bs4 import BeautifulSoup
 from download_services import download_book
 from arguments_parser import get_args
-from parse_services import parse_books_ids, has_link_to_download_txt
+from parse_services import parse_books_ids, get_pages_to_parse
 import logging
 
 CATEGORY = "l55"  # Раздел "Фантастика"
@@ -13,10 +12,8 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
     args = get_args()
-    start_page, end_page = args.start_page, args.end_page
-    if start_page > end_page:
-        sys.exit("First page value must be less end page value.")
-
+    start_page, end_page = get_pages_to_parse(f'https://tululu.org/{CATEGORY}/', args.start_page, args.end_page)
+    print(end_page)
     books_info = []
     for page in range(start_page, end_page + 1):
         logging.info(f"\n{'* ' * 10}\nPage {page}\n{'* ' * 10}")

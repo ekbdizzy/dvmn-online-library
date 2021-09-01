@@ -14,6 +14,6 @@ def get_args():
     parser.add_argument("--start_page", type=int, dest='start_page', required=False,
                         default=1, help="First page number to parse")
     parser.add_argument("--end_page", type=int, dest='end_page', required=False,
-                        default=1, help="Last page number to parse")
+                        default=0, help="Last page number to parse")
 
     return parser.parse_args()
