@@ -1,13 +1,14 @@
 from typing import Optional, List
 from urllib import parse
 from pathlib import Path
+
 from bs4 import BeautifulSoup
 
 
-def is_redirect(response) -> bool:
-    if response.history:
-        return True
-    return False
+def has_link_to_download_txt(soup, book_id) -> bool:
+    """Проверяет, есть ли ссылка на скачивание txt-файла."""
+    link = [a for a in soup.select('a') if a['href'] == f"/txt.php?id={book_id}"]
+    return bool(link)
 
 
 def parse_file_name_from_url(url: str) -> str:
@@ -29,9 +30,9 @@ def parse_books_ids(soup: BeautifulSoup) -> List[int]:
     return ids
 
 
-def parse_book_page(html: bytes) -> dict:
+def parse_book_page(soup: BeautifulSoup) -> dict:
     """Парсит title, author, image_link and genres из HTML-страницы с книгой."""
-    soup = BeautifulSoup(html, 'lxml')
+
     title, author = [title_and_author.strip() for title_and_author in (soup.select_one('h1').text.split("::"))]
     image_link = parse_cover_image_link(soup)
     genres = [genre.text for genre in soup.select("span.d_book a")]

@@ -4,15 +4,14 @@ import requests
 from bs4 import BeautifulSoup
 from download_services import download_book
 from arguments_parser import get_args
-from parse_services import parse_books_ids
+from parse_services import parse_books_ids, has_link_to_download_txt
 import logging
 
 CATEGORY = "l55"  # Раздел "Фантастика"
 
 if __name__ == '__main__':
 
-    logger = logging.getLogger('tululu')
-    logging.basicConfig(format='%(name)s:%(levelname)s:%(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
     args = get_args()
     start_page, end_page = args.start_page, args.end_page
     if start_page > end_page:
@@ -39,7 +38,6 @@ if __name__ == '__main__':
 
             if book_info:
                 books_info.append(book_info)
-                logging.info(f"https://tululu.org/b{book_id}/")
 
     with open(args.json_file_path, "w") as json_file_data:
-        json_file_data.write(json.dumps(books_info, ensure_ascii=False, indent=2))
+        json.dump(books_info, json_file_data, ensure_ascii=False, indent=2)

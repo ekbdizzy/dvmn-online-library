@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Optional
+
 import requests
+from bs4 import BeautifulSoup
 from pathvalidate import sanitize_filename
-import logging
 from parse_services import (parse_file_name_from_url,
-                            is_redirect,
                             parse_book_page,
-                            update_book_info)
+                            update_book_info, has_link_to_download_txt)
 
 
 def make_folder(folder: [Path or str], dest_folder: Optional[str] = None) -> Path:
@@ -32,9 +32,6 @@ def download_txt(book_id, filename, folder: Path = Path('books'), url="https://t
 
     response = requests.get(url, params={"id": book_id})
     response.raise_for_status()
-
-    if is_redirect(response):
-        return
 
     file_path = Path(Path(folder) / f"{sanitize_filename(filename)}.txt")
     with open(file_path, "w") as file_obj:
@@ -66,21 +63,15 @@ def fetch_book_data(book_id: int) -> Optional[dict]:
     Args:
         book_id: ID книги.
     Returns:
-        str: HTML-страница книги, если книга существует. Иначе вернет None.
+        str: Вернет словарь с информацией о книге, если ссылка на txt-файл существует. Иначе вернет None.
     """
     url = f"https://tululu.org/b{book_id}/"
-    try:
-        response = requests.get(f"{url}")
-        response.raise_for_status()
-        if is_redirect(response):
-            return
-        return parse_book_page(response.content)
-    except requests.exceptions.ConnectionError:
-        logging.exception(f"Connection error: failed to establish connection to {url}")
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, 'lxml')
+    if not has_link_to_download_txt(soup, book_id):
         return
-    except requests.exceptions.HTTPError as e:
-        logging.exception(e)
-        return
+    return parse_book_page(soup)
 
 
 def download_book(
@@ -107,7 +98,6 @@ def download_book(
         return
 
     file_path = ''
-
     if not skip_txt:
         txt_folder = make_folder(txt_folder, dest_folder)
         download_txt_url = f"https://tululu.org/txt.php"
