@@ -11,12 +11,9 @@ from parse_services import (parse_file_name_from_url,
 
 def make_folder(folder: [Path or str], dest_folder: Optional[str] = None) -> Path:
     """Создает директории dest_folder/folder или folder."""
-    if dest_folder:
-        Path.mkdir(Path(dest_folder), exist_ok=True)
-        Path.mkdir(Path(dest_folder) / folder, exist_ok=True)
-        return Path(Path(dest_folder) / folder)
-    Path.mkdir(Path(folder), exist_ok=True)
-    return Path(folder)
+    path = Path(dest_folder) / folder if dest_folder else Path(folder)
+    Path.mkdir(path, parents=True, exist_ok=True)
+    return path
 
 
 def download_txt(book_id, filename, folder: Path = Path('books'), url="https://tululu.org/txt.php"):
@@ -33,7 +30,7 @@ def download_txt(book_id, filename, folder: Path = Path('books'), url="https://t
     response = requests.get(url, params={"id": book_id})
     response.raise_for_status()
 
-    file_path = Path(Path(folder) / f"{sanitize_filename(filename)}.txt")
+    file_path = folder / f"{sanitize_filename(filename)}.txt"
     with open(file_path, "w") as file_obj:
         file_obj.write(response.text)
     return file_path
@@ -51,8 +48,8 @@ def download_image(url, folder: Path = Path('images')) -> Path:
     image_data_response = requests.get(url)
     image_data_response.raise_for_status()
     file_name = parse_file_name_from_url(url)
-    file_path = Path(Path(folder) / file_name)
-    if not Path(file_path).exists():
+    file_path = folder / file_name
+    if not file_path.exists():
         with open(file_path, "wb") as file:
             file.write(image_data_response.content)
     return file_path
@@ -91,7 +88,7 @@ def download_book(
         skip_images: если значение True, обложка книги не будет загружаться
     Returns:
         dict: Информация о скачанной книге
-"""
+        """
     book_info = fetch_book_data(book_id)
 
     if not book_info:
