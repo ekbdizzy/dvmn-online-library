@@ -29,6 +29,8 @@ def download_txt(book_id, filename, folder: Path = Path('books'), url="https://t
 
     response = requests.get(url, params={"id": book_id})
     response.raise_for_status()
+    if response.history:
+        return
 
     file_path = folder / f"{sanitize_filename(filename)}.txt"
     with open(file_path, "w") as file_obj:
