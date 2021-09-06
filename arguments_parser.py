@@ -1,4 +1,6 @@
 import argparse
+from parse_services import get_last_page_for_category
+import settings
 
 
 def get_args():
@@ -14,6 +16,7 @@ def get_args():
     parser.add_argument("--start_page", type=int, dest='start_page', required=False,
                         default=1, help="First page number to parse")
     parser.add_argument("--end_page", type=int, dest='end_page', required=False,
-                        default=0, help="Last page number to parse")
+                        default=get_last_page_for_category(settings.CATEGORY_URL),
+                        help="Last page number to parse")
 
     return parser.parse_args()
