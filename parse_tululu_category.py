@@ -28,17 +28,24 @@ if __name__ == '__main__':
         soup = BeautifulSoup(response.content, "lxml")
 
         for book_id in parse_books_ids(soup):
-            book_info = download_book(
-                book_id,
-                txt_folder='books',
-                images_folder="images",
-                dest_folder=args.dest_folder_path,
-                skip_images=args.skip_imgs,
-                skip_txt=args.skip_txt,
-            )
+            try:
+                book_info = download_book(
+                    book_id,
+                    txt_folder='books',
+                    images_folder="images",
+                    dest_folder=args.dest_folder_path,
+                    skip_images=args.skip_imgs,
+                    skip_txt=args.skip_txt,
+                )
+                if book_info:
+                    books_info.append(book_info)
 
-            if book_info:
-                books_info.append(book_info)
+            except requests.exceptions.ConnectionError:
+                logging.exception(f"Connection error: failed to establish connection to {url}")
+                continue
+            except requests.exceptions.HTTPError as e:
+                logging.exception(e)
+                continue
 
     with open(args.json_file_path, "w") as json_file_data:
         json.dump(books_info, json_file_data, ensure_ascii=False, indent=2)

@@ -109,8 +109,3 @@ def download_book(
 
     print(f'\nНазвание: {book_info.get("title")}\nАвтор: {book_info.get("author")}')
     return update_book_info(book_info, file_path, images_folder=images_folder, skip_images=skip_images)
-
-
-def download_books(start_id: int, end_id: int):
-    for book_id in range(start_id, end_id + 1):
-        download_book(book_id)
