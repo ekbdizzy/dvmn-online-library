@@ -3,6 +3,7 @@ venv/
 .DS_Store
 books/
 images/
+pages/
 **/__pycache__/
 books_info.json
 index.html

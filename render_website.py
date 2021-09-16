@@ -1,29 +1,61 @@
 import json
+from more_itertools import chunked
+from pathlib import Path
 from livereload import Server
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from urllib.parse import urljoin
 
 JSON_FILE = 'books_info.json'
 TEMPLATE_HTML = 'template.html'
+PAGES_FOLDER = 'pages'
+DEFAULT_PAGE_NAME = 'index'
+BOOKS_QUANTITY_ON_PAGE = 10
+BASE_URL = '/'
+
+
+def update_urls_in_books(books: list, base_url: str = BASE_URL):
+    for book in books:
+        book['img_src'] = urljoin(base_url, book.get('img_src'))
+        book['book_path'] = urljoin(base_url, book.get('book_path'))
+    return books
+
+
+def save_page(rendered_page: str,
+              page_index: int,
+              folder: str = PAGES_FOLDER,
+              name: str = DEFAULT_PAGE_NAME):
+    Path.mkdir(Path(folder), exist_ok=True, parents=True)
+    with open(Path(folder) / f'{name}{page_index}.html', 'w') as file:
+        file.write(rendered_page)
+
+
+def split_books_by_pages(books: list,
+                         folder: str = PAGES_FOLDER,
+                         file_name: str = DEFAULT_PAGE_NAME,
+                         books_quantity_on_page: int = 10) -> None:
+    """Read books and save split html-pages by paths ./folder/index{page_index}.html."""
+    for page_index, books_chunk in enumerate(chunked(books, books_quantity_on_page), 1):
+        template = env.get_template(TEMPLATE_HTML)
+        rendered_page = template.render(books=update_urls_in_books(books_chunk))
+        save_page(rendered_page, page_index, folder, file_name)
 
 
 def on_reload():
     template = env.get_template(TEMPLATE_HTML)
-    rendered_page = template.render(
-        books=books
-    )
+    rendered_page = template.render(books=update_urls_in_books(books))
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
+    split_books_by_pages(books)
 
 
 if __name__ == '__main__':
+    with open(JSON_FILE) as file_data:
+        books = json.loads(file_data.read())
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
-
-    with open(JSON_FILE) as file_data:
-        books = json.loads(file_data.read())
-
     on_reload()
     server = Server()
     server.watch('template.html', on_reload)
