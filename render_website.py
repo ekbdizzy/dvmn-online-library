@@ -48,7 +48,8 @@ def split_books_by_pages(books: list,
     for page_index, books_chunk in enumerate(chunked(books, books_quantity_on_page), 1):
         template = env.get_template(TEMPLATE_HTML)
         rendered_page = template.render(books=update_urls_in_books(books_chunk),
-                                        pages=get_pages_info(books))
+                                        pages=get_pages_info(books),
+                                        current_page=page_index)
         save_page(rendered_page, page_index, folder, file_name)
 
 
@@ -56,7 +57,8 @@ def on_reload():
     template = env.get_template(TEMPLATE_HTML)
     rendered_page = template.render(
         books=update_urls_in_books(books),
-        pages=get_pages_info(books)
+        pages=get_pages_info(books),
+        current_page=1
     )
     with open('index.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
