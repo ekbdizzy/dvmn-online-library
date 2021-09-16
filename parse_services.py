@@ -20,7 +20,7 @@ def get_last_page_for_category(url: str) -> int:
 
 def has_link_to_download_txt(soup, book_id) -> bool:
     """Проверяет, есть ли ссылка на скачивание txt-файла."""
-    link = [a for a in soup.select('a') if a['href'] == f"/txt.php?id={book_id}"]
+    link = [a for a in soup.select('a') if a.get('href') == f"/txt.php?id={book_id}"]
     return bool(link)
 
 
