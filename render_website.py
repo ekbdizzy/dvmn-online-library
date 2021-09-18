@@ -18,7 +18,7 @@ def get_pages(books: list) -> list:
     pages = []
     for page in range(1, math.ceil(len(books) / BOOKS_QUANTITY_ON_PAGE) + 1):
         pages.append({"number": page,
-                      "link": f'/{PAGES_FOLDER}/{DEFAULT_PAGE_NAME}{page}.html'
+                      "link": f'{DEFAULT_PAGE_NAME}{page}.html'
                       })
     return pages
 

@@ -24,7 +24,7 @@
             </a>
           </li>
         {% else %}
-          <li class="page-item"><a class="page-link" href="{{ page.link|urlencode }}">{{ page.number }}</a></li>
+          <li class="page-item"><a class="page-link" href="./pages/{{ page.link|urlencode }}">{{ page.number }}</a></li>
         {% endif %}
       {% endfor %}
       {% if current_page == pages|length %}
