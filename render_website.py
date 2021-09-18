@@ -39,7 +39,6 @@ def split_books_by_pages(books: list,
     """Read books and save split html-pages by paths ./folder/index{page_index}.html."""
     for page_index, books_chunk in enumerate(chunked(books, books_quantity_on_page), 1):
         template = env.get_template(PAGE_TEMPLATE)
-        #TODO make another links to books
         rendered_page = template.render(books=books_chunk,
                                         pages=get_pages(books),
                                         current_page=page_index)
