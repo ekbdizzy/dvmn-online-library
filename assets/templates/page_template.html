@@ -22,12 +22,12 @@
       {% for page in pages %}
         {% if page.number == current_page %}
           <li class="page-item active" aria-current="page">
-            <a class="page-link" href="{{ page.link|urlencode }}">{{ page.number }}
+            <a class="page-link">{{ page.number }}
               <span class="sr-only">(current)</span>
             </a>
           </li>
         {% else %}
-          <li class="page-item"><a class="page-link" href="{{ page.link|urlencode }}">{{ page.number }}</a></li>
+          <li class="page-item"><a class="page-link" href="./{{ page.link|urlencode }}">{{ page.number }}</a></li>
         {% endif %}
       {% endfor %}
       {% if current_page == pages|length %}
