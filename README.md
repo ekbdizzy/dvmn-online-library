@@ -1,14 +1,17 @@
-## Books parser from tululu.org
+## Online library
 
-Books are parsing from free online library [tululu.org](https://tululu.org).
+Simple site of online library on bootstrap. Books are from free online library [tululu.org](https://tululu.org).
 
+Demo is here: [online library.](https://ekbdizzy.github.io/dvmn-online-library/)
+
+![Online Library](assets/images/screenshot.png)
 ## Before start install requirements
 
 ~~~
 pip install -r requirements.txt
 ~~~
 
-## Working with project
+## Working with parser
 
 Script `parse_tululu_category.py` has cli args:
 
@@ -30,6 +33,22 @@ More info:
 ~~~
 python parse_tululu_category.py -h
 ~~~
+
+## Start project on dev
+
+Before start you need to download books and titles. Use `parse_tululu_parser.py`:
+
+~~~
+python parse_tululu_category.py
+~~~
+
+After books are parsed you should render html pages and run server:
+
+~~~
+python render_website.py
+~~~
+
+Site will be available on `localhost:5500`.
 
 ## Credential
 
