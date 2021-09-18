@@ -16,7 +16,7 @@ BOOKS_QUANTITY_ON_PAGE = 10
 
 def get_pages(books: list) -> list:
     pages = []
-    for page in range(1, math.ceil(len(books) / BOOKS_QUANTITY_ON_PAGE)):
+    for page in range(1, math.ceil(len(books) / BOOKS_QUANTITY_ON_PAGE) + 1):
         pages.append({"number": page,
                       "link": f'/{PAGES_FOLDER}/{DEFAULT_PAGE_NAME}{page}.html'
                       })
@@ -67,5 +67,5 @@ if __name__ == '__main__':
     )
     on_reload()
     server = Server()
-    server.watch('template.html', on_reload)
+    server.watch('assets/', on_reload)
     server.serve(root='.')
