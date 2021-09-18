@@ -5,30 +5,21 @@ from more_itertools import chunked
 from pathlib import Path
 from livereload import Server
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from urllib.parse import urljoin
 
 JSON_FILE = 'books_info.json'
 TEMPLATE_HTML = 'template.html'
 PAGES_FOLDER = 'pages'
 DEFAULT_PAGE_NAME = 'index'
 BOOKS_QUANTITY_ON_PAGE = 10
-BASE_URL = '/'
 
 
-def get_pages_info(books: list) -> list:
+def get_pages(books: list) -> list:
     pages = []
     for page in range(1, math.ceil(len(books) / BOOKS_QUANTITY_ON_PAGE)):
         pages.append({"number": page,
-                      "link": urljoin(BASE_URL, f'{PAGES_FOLDER}/{DEFAULT_PAGE_NAME}{page}.html')
+                      "link": f'/{PAGES_FOLDER}/{DEFAULT_PAGE_NAME}{page}.html'
                       })
     return pages
-
-
-def update_urls_in_books(books: list, base_url: str = BASE_URL):
-    for book in books:
-        book['img_src'] = urljoin(base_url, book.get('img_src'))
-        book['book_path'] = urljoin(base_url, book.get('book_path'))
-    return books
 
 
 def save_page(rendered_page: str,
@@ -47,8 +38,8 @@ def split_books_by_pages(books: list,
     """Read books and save split html-pages by paths ./folder/index{page_index}.html."""
     for page_index, books_chunk in enumerate(chunked(books, books_quantity_on_page), 1):
         template = env.get_template(TEMPLATE_HTML)
-        rendered_page = template.render(books=update_urls_in_books(books_chunk),
-                                        pages=get_pages_info(books),
+        rendered_page = template.render(books=books_chunk,
+                                        pages=get_pages(books),
                                         current_page=page_index)
         save_page(rendered_page, page_index, folder, file_name)
 
@@ -56,8 +47,8 @@ def split_books_by_pages(books: list,
 def on_reload():
     template = env.get_template(TEMPLATE_HTML)
     rendered_page = template.render(
-        books=update_urls_in_books(books),
-        pages=get_pages_info(books),
+        books=books,
+        pages=get_pages(books),
         current_page=1
     )
     with open('index.html', 'w', encoding="utf8") as file:
