@@ -7,8 +7,7 @@ from livereload import Server
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 JSON_FILE = 'books_info.json'
-INDEX_TEMPLATE = './assets/templates/index_template.html'
-PAGE_TEMPLATE = './assets/templates/page_template.html'
+TEMPLATE = './assets/templates/template.html'
 PAGES_FOLDER = 'pages'
 DEFAULT_PAGE_NAME = 'index'
 BOOKS_QUANTITY_ON_PAGE = 10
@@ -38,7 +37,7 @@ def split_books_by_pages(books: list,
                          books_quantity_on_page: int = BOOKS_QUANTITY_ON_PAGE) -> None:
     """Read books and save split html-pages by paths ./folder/index{page_index}.html."""
     for page_index, books_chunk in enumerate(chunked(books, books_quantity_on_page), 1):
-        template = env.get_template(PAGE_TEMPLATE)
+        template = env.get_template(TEMPLATE)
         rendered_page = template.render(books=books_chunk,
                                         pages=get_pages(books),
                                         current_page=page_index)
@@ -46,14 +45,6 @@ def split_books_by_pages(books: list,
 
 
 def on_reload():
-    template = env.get_template(INDEX_TEMPLATE)
-    rendered_page = template.render(
-        books=books,
-        pages=get_pages(books),
-        current_page=1
-    )
-    with open('index.html', 'w', encoding="utf8") as file:
-        file.write(rendered_page)
     split_books_by_pages(books)
 
 

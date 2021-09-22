@@ -3,18 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="icon" type="image/png" href="./assets/images/favicon.ico" sizes="16x16">
-  <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
-  <title>Online Library</title>
+  <link rel="icon" type="image/png" href="../assets/images/favicon.ico" sizes="16x16">
+  <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+  <title>Online library. Page {{ current_page }}.</title>
 </head>
 <body>
 <div class="container mt-3">
 
   <nav aria-label="Paginator">
     <ul class="pagination">
-      <li class="page-item disabled">
-        <a class="page-link" href="#" tabindex="-1">Предыдущая</a>
-      </li>
+      {% if current_page == 1 %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">Предыдущая</a>
+        </li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="index{{ current_page - 1 }}.html">Предыдущая</a></li>
+      {% endif %}
       {% for page in pages %}
         {% if page.number == current_page %}
           <li class="page-item active" aria-current="page">
@@ -23,7 +27,7 @@
             </a>
           </li>
         {% else %}
-          <li class="page-item"><a class="page-link" href="./pages/{{ page.link|urlencode }}">{{ page.number }}</a></li>
+          <li class="page-item"><a class="page-link" href="{{ page.link|urlencode }}">{{ page.number }}</a></li>
         {% endif %}
       {% endfor %}
       {% if current_page == pages|length %}
@@ -31,7 +35,7 @@
           <a class="page-link" href="#">Следующая</a>
         </li>
       {% else %}
-        <li class="page-item"><a class="page-link" href="./pages/index{{ current_page + 1 }}.html">Следующая</a></li>
+        <li class="page-item"><a class="page-link" href="index{{ current_page + 1 }}.html">Следующая</a></li>
       {% endif %}
     </ul>
   </nav>
@@ -41,7 +45,7 @@
       <div class="card mb-3 mx-auto" style="max-width: 540px;">
         <div class="row no-gutters">
           <div class="col-md-4">
-            <img src="{{ book.img_src|urlencode }}" class="card-img" alt="{{ book.title }}">
+            <img src="../{{ book.img_src|urlencode }}" class="card-img" alt="{{ book.title }}">
           </div>
           <div class="col-md-8">
             <div class="card-body">
@@ -52,7 +56,7 @@
                   <span class="badge badge-light">{{ genre }}</span>
                 {% endfor %}
               </div>
-              <a href="{{ book.book_path|urlencode }}"
+              <a href="../{{ book.book_path|urlencode }}"
                  target=_blank
                  rel="noopener noreferrer"
                  class="card-text">Читать</a>
@@ -65,7 +69,7 @@
 </div>
 
 
-<script src="./assets/js/jquery-3.5.1.slim.min.js"></script>
-<script src="./assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/jquery-3.5.1.slim.min.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
