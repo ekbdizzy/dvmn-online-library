@@ -5,6 +5,11 @@ Simple site of online library on bootstrap. Books are from free online library [
 Demo is here: [online library.](https://ekbdizzy.github.io/dvmn-online-library/)
 
 ![Online Library](assets/images/screenshot.png)
+
+## Use offline
+
+Open file `index.html` in browser you like.
+
 ## Before start install requirements
 
 ~~~
